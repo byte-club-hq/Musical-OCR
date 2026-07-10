@@ -1,0 +1,5 @@
+{
+  "name": "@musical-ocr/backend",
+  "private": true,
+  "type": "module"
+}
