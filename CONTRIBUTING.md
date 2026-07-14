@@ -17,16 +17,15 @@ If you wish to contribute to the repository, feel free to join the community [Di
 - keep changes small and reviewable
 - prefer clear progress over large, mixed PRs
 
-
 ## How To Contribute
 
 1. Review the open GitHub issues.
 2. Find/Create a GitHub issue that you'll work on it.
-4. Create a branch for that issue.
-5. Follow its requirements, restrictions, and acceptance checks exactly.
-6. Make the smallest change that completes the issue.
-7. Test the change before opening a pull request.
-8. Add new test cases that cover the changes made.
+3. Create a branch for that issue.
+4. Follow its requirements, restrictions, and acceptance checks exactly.
+5. Make the smallest change that completes the issue.
+6. Test the change before opening a pull request.
+7. Add new test cases that cover the changes made.
 8. Link the issue and describe what changed and why in the pull request.
 
 Do not open competing issues for already planned work. The project lead owns the backlog and assignment decisions.

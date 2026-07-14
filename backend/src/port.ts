@@ -1,6 +1,6 @@
 const DEFAULT_PORT = 3000;
 const MAX_PORT = 65_535;
-const INVALID_PORT_MESSAGE = "PORT must be an integer between 1 and 65535";
+const INVALID_PORT_MESSAGE = 'PORT must be an integer between 1 and 65535';
 
 export function resolvePort(value: string | undefined): number {
   if (value === undefined) {

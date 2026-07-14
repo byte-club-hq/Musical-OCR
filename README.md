@@ -79,6 +79,17 @@ The repository contains runnable web frontend and backend workspaces.
 - `frontend/` contains the React, Vite, and TypeScript web application
 - `backend/` contains the Express and TypeScript API, including its health endpoint
 
+## Development Commands
+
+| Command                | Description                                                                            |                           Stays running                            |
+| ---------------------- | -------------------------------------------------------------------------------------- | :----------------------------------------------------------------: |
+| `npm run dev`          | Starts the frontend and backend development servers together.                          |                                Yes                                 |
+| `npm run build`        | Builds both workspaces.                                                                |                                 No                                 |
+| `npm run typecheck`    | Runs TypeScript type checking for both workspaces without emitting files.              |                                 No                                 |
+| `npm test`             | Runs the frontend and backend test suites once.                                        |                                 No                                 |
+|                        | `npm run lint`                                                                         | Checks TypeScript, TSX, test, and configuration files with ESLint. | No  |
+| `npm run format:check` | Checks formatting of TypeScript, TSX, JSON, and Markdown files without modifying them. |                                 No                                 |
+
 ## Contributing
 
 If you want to help, check the open issues and pick a task that matches your skills.
