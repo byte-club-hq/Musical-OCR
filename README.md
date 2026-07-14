@@ -74,10 +74,10 @@ sheet-music-scanner/
 
 ## Current State
 
-The repository contains a runnable web frontend and a backend workspace scaffold.
+The repository contains runnable web frontend and backend workspaces.
 
 - `frontend/` contains the React, Vite, and TypeScript web application
-- `backend/` contains the backend entry point
+- `backend/` contains the Express and TypeScript API, including its health endpoint
 
 ## Contributing
 
