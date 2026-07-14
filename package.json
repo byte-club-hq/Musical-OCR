@@ -2,7 +2,7 @@
   "name": "musical-ocr",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "frontend",
+    "backend"
   ]
 }

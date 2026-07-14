@@ -66,19 +66,18 @@ Responsibilities:
 
 ```text
 sheet-music-scanner/
-|-- apps/
-|   |-- web/
-|   `-- backend/
+|-- frontend/
+|-- backend/
 |-- README.md
 `-- CONTRIBUTING.md
 ```
 
 ## Current State
 
-The repository currently contains the web and backend workspace scaffolds.
+The repository contains a runnable web frontend and a backend workspace scaffold.
 
-- `apps/web/` contains the frontend entry point
-- `apps/backend/` contains the backend entry point
+- `frontend/` contains the React, Vite, and TypeScript web application
+- `backend/` contains the backend entry point
 
 ## Contributing
 
