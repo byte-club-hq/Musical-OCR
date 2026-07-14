@@ -20,12 +20,16 @@ If you wish to contribute to the repository, feel free to join the community [Di
 
 ## How To Contribute
 
-1. Find or open an issue that matches the work you want to do.
-2. Comment on the issue so everyone knows you are working on it.
-3. Create a branch for the task.
-4. Make the smallest change that solves the issue.
-5. Test the change before opening a pull request.
-6. Describe what changed and why in the pull request.
+1. Review the planned work in [ISSUE.md](ISSUE.md).
+2. Find/Create a GitHub issue that you'll work on it.
+4. Create a branch for that issue.
+5. Follow its requirements, restrictions, and acceptance checks exactly.
+6. Make the smallest change that completes the issue.
+7. Test the change before opening a pull request.
+8. Add new test cases that cover the changes made.
+8. Link the issue and describe what changed and why in the pull request.
+
+Do not edit `ISSUE.md` to claim work or open a competing implementation issue. The project lead owns the backlog and assignment decisions.
 
 ## What To Contribute
 
@@ -63,6 +67,15 @@ If you want to suggest an idea, open an issue and include:
 - avoid extra abstraction unless it is needed
 - comment/document your code for better understanding
 - prefer the existing project style when making changes
+
+## Test Architecture
+
+- Keep application code in `frontend/src/` and `backend/src/`.
+- Keep automated tests in `frontend/tests/` and `backend/tests/`; do not colocate tests with production code.
+- Name test files after the behavior or module they cover using `*.test.ts` or `*.test.tsx`.
+- Add or update tests for every production-code behavior change.
+- Put reusable test-only setup in `tests/setup.ts` and test fixtures in `tests/fixtures/` only when they are actually needed.
+- Mirror the `src/` directory structure inside `tests/` once multiple modules would otherwise have ambiguous test names; do not create empty hierarchy in advance.
 
 ## Commit Messages
 
