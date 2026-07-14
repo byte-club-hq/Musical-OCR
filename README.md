@@ -87,7 +87,8 @@ The repository contains runnable web frontend and backend workspaces.
 | `npm run build`        | Builds both workspaces.                                                                |                                 No                                 |
 | `npm run typecheck`    | Runs TypeScript type checking for both workspaces without emitting files.              |                                 No                                 |
 | `npm test`             | Runs the frontend and backend test suites once.                                        |                                 No                                 |
-|                        | `npm run lint`                                                                         | Checks TypeScript, TSX, test, and configuration files with ESLint. | No  |
+| `npm run lint`         | Checks TypeScript, TSX, test, and configuration files with ESLint.                     |                                 No                                 |
+| `npm run format`       | Formats TypeScript, TSX, JSON, and Markdown files with Prettier.                       |                                 No                                 |
 | `npm run format:check` | Checks formatting of TypeScript, TSX, JSON, and Markdown files without modifying them. |                                 No                                 |
 
 ## Contributing

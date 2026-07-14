@@ -12,6 +12,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "lint": "eslint frontend backend --max-warnings 0",
+    "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
