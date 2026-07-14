@@ -24,9 +24,10 @@ If you wish to contribute to the repository, feel free to join the community [Di
 3. Create a branch for that issue.
 4. Follow its requirements, restrictions, and acceptance checks exactly.
 5. Make the smallest change that completes the issue.
-6. Test the change before opening a pull request.
-7. Add new test cases that cover the changes made.
-8. Link the issue and describe what changed and why in the pull request.
+6. Run `npm run format` before submitting your code.
+7. Test the change before opening a pull request.
+8. Add new test cases that cover the changes made.
+9. Link the issue and describe what changed and why in the pull request.
 
 Do not edit `ISSUE.md` to claim work or open a competing implementation issue. The project lead owns the backlog and assignment decisions.
 
