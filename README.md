@@ -4,42 +4,54 @@ A web-first project for converting photos of printed sheet music into editable m
 
 ## Overview
 
-The project turns a sheet music image into structured music data. The core flow is:
+The project turns a sheet-music image into editable music data by using Audiveris as the recognition engine.
 
-```text
-Take or upload a photo
-        ->
-Recognize the musical symbols
-        ->
-Convert them into music data
-        ->
-Generate MusicXML
-        ->
-Open the result in MuseScore
-```
+For the MVP, the repository focuses on a simple and practical flow:
+
+- accept one sheet-music image upload;
+- send that image to Audiveris;
+- receive MusicXML output;
+- extract a small result summary for the UI;
+- let the user download the MusicXML.
+- optionally play the music within app
 
 ## What The Project Is For
 
 Sheet Music Scanner is focused on practical optical music recognition for printed scores.
 
-The goal is to build a clear path from image input to editable score output, with a web app for the user interface and a backend for image processing and recognition work.
+The goal is not to build a custom OMR engine in this MVP. The goal is to build a clear, reliable product workflow around Audiveris so users can go from image input to editable MusicXML output with a web frontend and backend.
+
+## Product Flow
+
+The MVP goal is simple:
+
+1. A user uploads a sheet-music image.
+2. The backend sends that image to Audiveris.
+3. Audiveris produces MusicXML.
+4. The app shows a small result summary.
+5. The user downloads the MusicXML.
+
+You do not need to understand full music OMR to contribute. Most issues focus on making one part of this flow reliable, testable, and easy to run.
+
+## What Is Audiveris?
+
+[Audiveris](https://audiveris.github.io/audiveris/) is the optical music recognition engine used by this project for the MVP.
+
+In simple terms, Audiveris reads printed sheet-music images and produces structured music data, including MusicXML output. In this project, contributors do not need to understand Audiveris internals to help. Most tasks treat it as an external tool in the workflow:
+
+sheet-music image -> Audiveris -> MusicXML -> app result
+
+For the MVP, this repository focuses on integrating Audiveris cleanly and reliably rather than building a custom music-recognition engine from scratch.
 
 ## What OMR Means
 
 OMR means Optical Music Recognition.
 
-It is similar to OCR, but instead of reading letters and words, it reads musical symbols such as:
-
-- noteheads
-- stems
-- rests
-- clefs
-- accidentals
-- measures
+It is similar to OCR, but instead of reading letters and words, it reads musical notation from sheet music and converts it into structured music data.
 
 ## Architecture
 
-The project follows a simple layered flow:
+The project follows a simple integration flow:
 
 ```text
 User
@@ -48,19 +60,20 @@ Web app
   ->
 Backend
   ->
-OMR pipeline
-  ->
-Score data
+Audiveris
   ->
 MusicXML
+  ->
+Result summary + download + Possible Audio Play
 ```
 
 Responsibilities:
 
-- `Web app`: capture or upload sheet music images and show results
-- `Backend`: receive images, validate input, and coordinate processing
-- `OMR pipeline`: preprocess images, detect notation, and build score data
-- `MusicXML output`: produce a file that can be opened in notation software
+- `Web app`: accept an image, show upload state, show result state, and provide the MusicXML download
+- `Backend`: validate uploads, manage temporary work, run Audiveris, track job state, and expose result endpoints
+- `Audiveris`: read printed sheet-music images and produce MusicXML
+- `Result summary`: extract a small pitch/result view from MusicXML for the frontend
+- `MusicXML output`: provide the downloadable editable score file
 
 ## Repository Structure
 
