@@ -1,0 +1,22 @@
+{
+  "simple-cdef-quarter.png": {
+    "expectedKind": "success",
+    "pitches": ["C4", "D4", "E4", "F4"]
+  },
+  "printed-sample.jpg": {
+    "expectedKind": "success",
+    "pitches": []
+  },
+  "blank.png": {
+    "expectedKind": "failure",
+    "failureCategory": "blank-image"
+  },
+  "corrupt.png": {
+    "expectedKind": "failure",
+    "failureCategory": "invalid-image"
+  },
+  "fake-image.png": {
+    "expectedKind": "failure",
+    "failureCategory": "unsupported-input"
+  }
+}
