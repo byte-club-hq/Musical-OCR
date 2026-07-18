@@ -1,0 +1,19 @@
+FROM ubuntu:24.04
+
+ARG AUDIVERIS_VERSION=5.11.0
+ARG AUDIVERIS_DEB_URL=https://github.com/Audiveris/audiveris/releases/download/5.11.0/Audiveris-5.11.0-ubuntu24.04-x86_64.deb
+ARG AUDIVERIS_DEB_SHA256=f20113aaa33b3149ec8d6a09b2a7963360e65fafd92d69389987a85bbc3ec7a3
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends ca-certificates curl libgtk-3-0 xvfb \
+    && mkdir -p /etc/xdg/menus/applications-merged /usr/share/applications /usr/share/desktop-directories \
+    && curl --location --fail --show-error --output /tmp/audiveris.deb "$AUDIVERIS_DEB_URL" \
+    && echo "$AUDIVERIS_DEB_SHA256  /tmp/audiveris.deb" | sha256sum --check --status \
+    && apt-get install --yes /tmp/audiveris.deb \
+    && rm /tmp/audiveris.deb \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
