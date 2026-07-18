@@ -92,6 +92,22 @@ The repository contains runnable web frontend and backend workspaces.
 - `frontend/` contains the React, Vite, and TypeScript web application
 - `backend/` contains the Express and TypeScript API, including its health endpoint
 
+## Audiveris Local Docker Run
+
+The repository now uses a pinned Audiveris Docker Hub image for local batch runs.
+
+- Version pinned: `5.11.0`
+- Published image: `drawliin/musical-ocr-audiveris:5.11.0`
+- Optional custom-build file: [audiveris/Dockerfile.build](/D:/Projects/Musical-OCR/audiveris/Dockerfile.build)
+- Wrapper Dockerfile: [audiveris/Dockerfile](/D:/Projects/Musical-OCR/audiveris/Dockerfile)
+- Local run guide: [audiveris/README.md](/D:/Projects/Musical-OCR/audiveris/README.md)
+
+This is the command shape the backend will later reuse:
+
+```text
+xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' /opt/audiveris/bin/Audiveris -batch -transcribe -export -output /output /input/<image-file>
+```
+
 ## Development Commands
 
 | Command                | Description                                                                            |                           Stays running                            |
