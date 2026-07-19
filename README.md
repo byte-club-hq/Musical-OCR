@@ -1,6 +1,6 @@
 # Sheet Music Scanner
 
-A web-first project for converting photos of printed sheet music into editable music data, starting with MusicXML.
+A cross-platform project for converting photos of printed sheet music into editable music data on web and mobile, starting with MusicXML.
 
 ## Overview
 
@@ -12,14 +12,14 @@ For the MVP, the repository focuses on a simple and practical flow:
 - send that image to Audiveris;
 - receive MusicXML output;
 - extract a small result summary for the UI;
-- let the user download the MusicXML.
+- let the user download, share, or open the MusicXML.
 - optionally play the music within app
 
 ## What The Project Is For
 
 Sheet Music Scanner is focused on practical optical music recognition for printed scores.
 
-The goal is not to build a custom OMR engine in this MVP. The goal is to build a clear, reliable product workflow around Audiveris so users can go from image input to editable MusicXML output with a web frontend and backend.
+The goal is not to build a custom OMR engine in this MVP. The goal is to build a clear, reliable product workflow around Audiveris so users can go from image input to editable MusicXML output with an Expo React Native client and backend.
 
 ## Product Flow
 
@@ -29,7 +29,7 @@ The MVP goal is simple:
 2. The backend sends that image to Audiveris.
 3. Audiveris produces MusicXML.
 4. The app shows a small result summary.
-5. The user downloads the MusicXML.
+5. The user downloads, shares, or opens the MusicXML.
 
 You do not need to understand full music OMR to contribute. Most issues focus on making one part of this flow reliable, testable, and easy to run.
 
@@ -56,7 +56,7 @@ The project follows a simple integration flow:
 ```text
 User
   ->
-Web app
+Web/mobile client
   ->
 Backend
   ->
@@ -64,16 +64,16 @@ Audiveris
   ->
 MusicXML
   ->
-Result summary + download + Possible Audio Play
+Result summary + MusicXML access + Possible Audio Play
 ```
 
 Responsibilities:
 
-- `Web app`: accept an image, show upload state, show result state, and provide the MusicXML download
+- `Client app`: accept or capture an image, show upload state, show result state, and provide MusicXML access on web and mobile
 - `Backend`: validate uploads, manage temporary work, run Audiveris, track job state, and expose result endpoints
 - `Audiveris`: read printed sheet-music images and produce MusicXML
 - `Result summary`: extract a small pitch/result view from MusicXML for the frontend
-- `MusicXML output`: provide the downloadable editable score file
+- `MusicXML output`: provide access to the editable score file
 
 ## Repository Structure
 
@@ -87,9 +87,9 @@ sheet-music-scanner/
 
 ## Current State
 
-The repository contains runnable web frontend and backend workspaces.
+The repository contains runnable frontend and backend workspaces.
 
-- `frontend/` contains the React, Vite, and TypeScript web application
+- `frontend/` contains the Expo React Native and TypeScript client with React Native Web support
 - `backend/` contains the Express and TypeScript API, including its health endpoint
 
 ## Audiveris Local Docker Run
@@ -110,15 +110,15 @@ xvfb-run --auto-servernum --server-args='-screen 0 1920x1080x24' /opt/audiveris/
 
 ## Development Commands
 
-| Command                | Description                                                                            |                           Stays running                            |
-| ---------------------- | -------------------------------------------------------------------------------------- | :----------------------------------------------------------------: |
-| `npm run dev`          | Starts the frontend and backend development servers together.                          |                                Yes                                 |
-| `npm run build`        | Builds both workspaces.                                                                |                                 No                                 |
-| `npm run typecheck`    | Runs TypeScript type checking for both workspaces without emitting files.              |                                 No                                 |
-| `npm test`             | Runs the frontend and backend test suites once.                                        |                                 No                                 |
-| `npm run lint`         | Checks TypeScript, TSX, test, and configuration files with ESLint.                     |                                 No                                 |
-| `npm run format`       | Formats TypeScript, TSX, JSON, and Markdown files with Prettier.                       |                                 No                                 |
-| `npm run format:check` | Checks formatting of TypeScript, TSX, JSON, and Markdown files without modifying them. |                                 No                                 |
+| Command                | Description                                                                            | Stays running |
+| ---------------------- | -------------------------------------------------------------------------------------- | :-----------: |
+| `npm run dev`          | Starts the frontend and backend development servers together.                          |      Yes      |
+| `npm run build`        | Builds both workspaces.                                                                |      No       |
+| `npm run typecheck`    | Runs TypeScript type checking for both workspaces without emitting files.              |      No       |
+| `npm test`             | Runs the frontend and backend test suites once.                                        |      No       |
+| `npm run lint`         | Checks TypeScript, TSX, test, and configuration files with ESLint.                     |      No       |
+| `npm run format`       | Formats TypeScript, TSX, JSON, and Markdown files with Prettier.                       |      No       |
+| `npm run format:check` | Checks formatting of TypeScript, TSX, JSON, and Markdown files without modifying them. |      No       |
 
 ## Contributing
 

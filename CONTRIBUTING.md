@@ -70,7 +70,7 @@ If you want to suggest an idea, open an issue and include:
 
 ## Test Architecture
 
-- Keep application code in `frontend/src/` and `backend/src/`.
+- Keep cross-platform client code in `frontend/src/` and backend code in `backend/src/`.
 - Keep automated tests in `frontend/tests/` and `backend/tests/`; do not colocate tests with production code.
 - Name test files after the behavior or module they cover using `*.test.ts` or `*.test.tsx`.
 - Add or update tests for every production-code behavior change.

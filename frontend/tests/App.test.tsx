@@ -1,14 +1,11 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { render } from '@testing-library/react-native';
 
 import { App } from '../src/App';
 
 describe('App', () => {
-  it('renders the application title', () => {
-    render(<App />);
+  it('renders the application title', async () => {
+    const { getByText } = await render(<App />);
 
-    expect(
-      screen.getByRole('heading', { level: 1, name: 'Sheet Music Scanner' }),
-    ).toBeInTheDocument();
+    expect(getByText('Sheet Music Scanner')).toBeTruthy();
   });
 });
