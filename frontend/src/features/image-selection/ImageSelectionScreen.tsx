@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton } from './components/ActionButton';
 import { ImagePreview } from './components/ImagePreview';
 import { ImageSummary } from './components/ImageSummary';
 import { UploadStatus } from './components/UploadStatus';
-import { fetchRecognitionStatus, uploadRecognitionImage } from './api';
+import {
+  fetchRecognitionStatus,
+  musicXmlDownloadUrl,
+  uploadRecognitionImage,
+} from './api';
 import { pickSheetMusicImage } from './picker';
 import type { SelectedImage, UploadState } from './types';
 
@@ -184,6 +188,18 @@ export function ImageSelectionScreen() {
         </View>
 
         <UploadStatus uploadState={uploadState} />
+
+        {uploadState.status === 'completed' ? (
+          // The browser (web) or system handler (mobile) downloads the .mxl.
+          // TODO: platform-specific sharing and opening in MuseScore.
+          <ActionButton
+            accessibilityLabel="Download MusicXML"
+            label="Download MusicXML"
+            onPress={() => {
+              void Linking.openURL(musicXmlDownloadUrl(uploadState.jobId));
+            }}
+          />
+        ) : null}
       </View>
     </ScrollView>
   );

@@ -73,6 +73,10 @@ export async function fetchRecognitionStatus(
   throw new Error(safeMessage);
 }
 
+export function musicXmlDownloadUrl(jobId: string): string {
+  return `${apiBaseUrl}/api/recognitions/${encodeURIComponent(jobId)}/musicxml`;
+}
+
 function createRecognitionUploadBody(image: SelectedImage): FormData {
   const formData = new FormData();
   const uploadPart =

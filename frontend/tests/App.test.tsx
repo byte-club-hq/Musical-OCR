@@ -1,4 +1,5 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react-native';
+import { Linking } from 'react-native';
 
 import { App } from '../src/App';
 import { apiBaseUrl } from '../src/config/api';
@@ -171,6 +172,35 @@ describe('App', () => {
     await press(getByLabelText('Scan sheet music'));
 
     expect(await findByText('Recognition job job-123 completed.')).toBeTruthy();
+  });
+
+  it('opens the MusicXML download for a completed job', async () => {
+    const openURL = jest
+      .spyOn(Linking, 'openURL')
+      .mockResolvedValueOnce(undefined);
+    mockedPickSheetMusicImage.mockResolvedValueOnce(selectedImage);
+    fetchMock
+      .mockResolvedValueOnce({
+        json: async () => ({ jobId: 'job-123', status: 'pending' }),
+        ok: true,
+      } as Response)
+      .mockResolvedValueOnce({
+        json: async () => ({ jobId: 'job-123', status: 'completed' }),
+        ok: true,
+      } as Response);
+
+    const { findByLabelText, findByText, getByLabelText } = await render(
+      <App />,
+    );
+    await press(getByLabelText('Choose image'));
+    await findByText('score.png');
+    await press(getByLabelText('Scan sheet music'));
+
+    await press(await findByLabelText('Download MusicXML'));
+
+    expect(openURL).toHaveBeenCalledWith(
+      `${apiBaseUrl}/api/recognitions/job-123/musicxml`,
+    );
   });
 
   it('polls the recognition status and shows a failed job message', async () => {
