@@ -16,6 +16,20 @@ describe('GET /api/health', () => {
   });
 });
 
+describe('GET /api/recognitions/:id', () => {
+  it('returns a safe not found error for unknown jobs', async () => {
+    const response = await request(app).get('/api/recognitions/missing-job');
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({
+      error: {
+        code: 'recognition_not_found',
+        message: 'Recognition job was not found.',
+      },
+    });
+  });
+});
+
 describe('OPTIONS preflight', () => {
   it('allows requests from any origin', async () => {
     const response = await request(app)
