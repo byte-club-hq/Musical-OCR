@@ -1,15 +1,8 @@
 import type { RequestHandler } from 'express';
 import multer from 'multer';
 
-import {
-  startRecognitionJob,
-  type StartRecognitionJobOptions,
-} from '../recognition/jobs.ts';
+import type { RecognitionService } from '../recognition/service.ts';
 import { MAX_IMAGE_BYTES, validateUploadedImage } from './image-upload.ts';
-
-type RecognitionJobStarter = (
-  options: StartRecognitionJobOptions,
-) => Promise<{ readonly jobId: string; readonly status: 'pending' }>;
 
 const upload = multer({
   // Keep the image in memory for this validation-only endpoint.
@@ -39,7 +32,7 @@ const unavailableBody = {
 } as const;
 
 export function createRecognitionUploadHandler(
-  startJob: RecognitionJobStarter = startRecognitionJob,
+  submit: RecognitionService['submit'],
 ): RequestHandler {
   return (request, response) => {
     // Multer parses multipart/form-data and puts the single accepted file on
@@ -62,7 +55,7 @@ export function createRecognitionUploadHandler(
           return;
         }
 
-        const job = await startJob({
+        const job = await submit({
           imageBuffer: request.file.buffer,
           mediaType: image.mediaType,
         });
@@ -77,5 +70,3 @@ export function createRecognitionUploadHandler(
     });
   };
 }
-
-export const acceptRecognitionUpload = createRecognitionUploadHandler();

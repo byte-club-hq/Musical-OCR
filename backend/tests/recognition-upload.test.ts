@@ -3,9 +3,15 @@ import path from 'node:path';
 import { crc32 } from 'node:zlib';
 
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import type { Express } from 'express';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { app } from '../src/app.ts';
+import { createApp } from '../src/app.ts';
+import {
+  createTempRoot,
+  createTestRecognition,
+  succeedingAudiveris,
+} from './support/recognition.ts';
 
 const fixturesPath = path.join(import.meta.dirname, 'fixtures');
 const pngFixturePath = path.join(fixturesPath, 'simple-cdef-quarter.png');
@@ -19,6 +25,20 @@ const invalidUploadBody = {
     message: 'Upload must be one PNG or JPEG image up to 10 MB.',
   },
 };
+
+let tempRoot: Awaited<ReturnType<typeof createTempRoot>>;
+let app: Express;
+
+beforeEach(async () => {
+  tempRoot = await createTempRoot();
+  app = createApp({
+    recognition: createTestRecognition(tempRoot.tempRoot, succeedingAudiveris),
+  });
+});
+
+afterEach(async () => {
+  await tempRoot.remove();
+});
 
 describe('POST /api/recognitions', () => {
   it('accepts one valid PNG image', async () => {

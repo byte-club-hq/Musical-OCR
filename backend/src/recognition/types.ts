@@ -1,8 +1,13 @@
 // This is the small public result the app can show. It is intentionally not a
 // full MusicXML model; the backend stores/downloads MusicXML separately.
-type PitchItem = {
+export type PitchItem = {
   readonly step: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
   readonly octave: number;
+};
+
+export type RecognitionError = {
+  readonly code: string;
+  readonly message: string;
 };
 
 type RecognitionBase = {
@@ -27,10 +32,7 @@ type CompletedRecognitionResult = RecognitionBase & {
 
 type FailedRecognitionResult = RecognitionBase & {
   readonly status: 'failed';
-  readonly error: {
-    readonly code: string;
-    readonly message: string;
-  };
+  readonly error: RecognitionError;
   readonly musicXmlReady: false;
 };
 
