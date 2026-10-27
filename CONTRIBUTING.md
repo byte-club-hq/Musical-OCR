@@ -20,7 +20,7 @@ If you wish to contribute to the repository, feel free to join the community [Di
 ## How To Contribute
 
 1. Review the open GitHub issues.
-2. Find/Create a GitHub issue that you'll work on it.
+2. Pick an issue to work on and ask to be assigned.
 3. Create a branch for that issue.
 4. Follow its requirements, restrictions, and acceptance checks exactly.
 5. Make the smallest change that completes the issue.

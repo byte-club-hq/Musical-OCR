@@ -5,7 +5,8 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["jest"]
+    "customConditions": ["react-native-strict-api"],
+    "types": ["jest", "react-native"]
   },
   "include": ["index.ts", "src", "tests"]
 }
