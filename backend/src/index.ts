@@ -1,9 +1,10 @@
 import { app } from './app.ts';
 import { resolvePort } from './port.ts';
 
+const host = '0.0.0.0';
 const port = resolvePort(process.env.PORT);
-const server = app.listen(port, () => {
-  console.log(`Backend listening on http://localhost:${port}`);
+const server = app.listen(port, host, () => {
+  console.log(`Backend listening on http://${host}:${port}`);
 });
 
 server.on('error', (error) => {
