@@ -18,14 +18,8 @@ describe('extractMusicXml', () => {
     expect(extractMusicXml(mxl)).toBe(score);
   });
 
-  it('falls back to the first XML file when there is no container', () => {
+  it('rejects archives without a container entry', () => {
     const mxl = zipSync({ 'source.xml': strToU8(score) });
-
-    expect(extractMusicXml(mxl)).toBe(score);
-  });
-
-  it('rejects archives without a score', () => {
-    const mxl = zipSync({ 'readme.txt': strToU8('hello') });
 
     expect(() => extractMusicXml(mxl)).toThrow();
   });

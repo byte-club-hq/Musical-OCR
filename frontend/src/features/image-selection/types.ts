@@ -17,8 +17,6 @@ export type PickImageResult =
   | { readonly status: 'cancelled' }
   | { readonly status: 'invalid'; readonly message: string };
 
-// Everything the screen shows about one scan, from upload to result.
-// Owned by useRecognitionUpload; components only read it.
 export type UploadState =
   | { readonly status: 'idle' }
   | { readonly status: 'uploading' }

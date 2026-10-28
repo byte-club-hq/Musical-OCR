@@ -3,9 +3,7 @@ import type { ErrorRequestHandler, RequestHandler, Response } from 'express';
 
 import type { Logger } from '../logger.ts';
 
-// The single place that decides HTTP status codes and user-facing messages
-// for API errors. Add a new code to ApiErrorCode in shared/src/index.ts first,
-// then here; TypeScript will refuse to compile until both agree.
+// Status and user-facing message for every ApiErrorCode in @musical-ocr/shared.
 const apiErrors: Record<
   ApiErrorCode,
   { readonly status: number; readonly message: string }
@@ -54,8 +52,7 @@ export const notFoundHandler: RequestHandler = (_request, response) => {
   sendError(response, 'not_found');
 };
 
-// Express calls this for errors thrown in route handlers. Never echo the error
-// itself: messages and stacks can contain paths or other internal details.
+// Never echo the error itself; messages and stacks can contain local paths.
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (error: unknown, request, response, next) => {
     if (response.headersSent) {
@@ -65,7 +62,7 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
 
     logger.error('http.unhandled_error', {
       method: request.method,
-      errorName: error instanceof Error ? error.name : typeof error,
+      path: request.path,
     });
     sendError(response, 'internal_error');
   };

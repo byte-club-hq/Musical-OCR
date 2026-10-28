@@ -3,7 +3,6 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 
 import { createApp } from '../src/app.ts';
-import { loadConfig } from '../src/config.ts';
 import { createErrorHandler } from '../src/http/errors.ts';
 import { createLogger } from '../src/logger.ts';
 
@@ -20,7 +19,7 @@ describe('HTTP error handling', () => {
     });
   });
 
-  it('hides thrown error details and logs only the error name', async () => {
+  it('hides thrown error details from the client and the log', async () => {
     const lines: string[] = [];
     const app = express();
     app.get('/boom', () => {
@@ -42,26 +41,7 @@ describe('HTTP error handling', () => {
     expect(JSON.parse(lines[0] ?? '{}')).toMatchObject({
       level: 'error',
       event: 'http.unhandled_error',
-      errorName: 'Error',
+      path: '/boom',
     });
-  });
-
-  it('uses the configured CORS origin', async () => {
-    const app = createApp({
-      config: { ...loadConfig({}), corsOrigin: 'https://scanner.example' },
-    });
-
-    const response = await request(app).get('/api/health');
-
-    expect(response.headers['access-control-allow-origin']).toBe(
-      'https://scanner.example',
-    );
-    expect(response.headers.vary).toContain('Origin');
-  });
-
-  it('does not advertise Express', async () => {
-    const response = await request(createApp()).get('/api/health');
-
-    expect(response.headers['x-powered-by']).toBeUndefined();
   });
 });

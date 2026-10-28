@@ -1,4 +1,3 @@
-import type { RecognitionAccepted } from '@musical-ocr/shared';
 import type { RequestHandler } from 'express';
 import multer from 'multer';
 
@@ -50,12 +49,8 @@ export function createRecognitionUploadHandler(
           imageBuffer: request.file.buffer,
           mediaType: image.mediaType,
         });
-        const body: RecognitionAccepted = {
-          jobId: job.jobId,
-          status: job.status,
-        };
 
-        response.status(202).json(body);
+        response.status(202).json(job);
       })().catch((submitError: unknown) => {
         sendError(
           response,

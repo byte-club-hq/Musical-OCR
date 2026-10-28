@@ -3,15 +3,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { createJobQueue } from '../src/recognition/job-queue.ts';
 
 function deferredTask() {
-  let finish: () => void = () => undefined;
-  let fail: () => void = () => undefined;
+  let finish = () => {};
+  let fail = () => {};
   const task = vi.fn(
     () =>
       new Promise<void>((resolve, reject) => {
         finish = resolve;
-        fail = () => {
-          reject(new Error('task failed'));
-        };
+        fail = () => reject(new Error('task failed'));
       }),
   );
 
@@ -21,21 +19,24 @@ function deferredTask() {
 describe('job queue', () => {
   it('never runs more tasks than the concurrency limit', async () => {
     const queue = createJobQueue(2);
-    const tasks = [deferredTask(), deferredTask(), deferredTask()];
+    const [first, second, third] = [
+      deferredTask(),
+      deferredTask(),
+      deferredTask(),
+    ];
 
-    tasks.forEach(({ task }) => {
-      queue.enqueue(task);
-    });
+    queue.enqueue(first.task);
+    queue.enqueue(second.task);
+    queue.enqueue(third.task);
 
-    expect(queue.running()).toBe(2);
+    expect(second.task).toHaveBeenCalled();
+    expect(third.task).not.toHaveBeenCalled();
     expect(queue.waiting()).toBe(1);
-    expect(tasks[2]?.task).not.toHaveBeenCalled();
 
-    tasks[0]?.finish();
+    first.finish();
     await vi.waitFor(() => {
-      expect(tasks[2]?.task).toHaveBeenCalled();
+      expect(third.task).toHaveBeenCalled();
     });
-    expect(queue.running()).toBe(2);
     expect(queue.waiting()).toBe(0);
   });
 
@@ -51,10 +52,5 @@ describe('job queue', () => {
     await vi.waitFor(() => {
       expect(second.task).toHaveBeenCalled();
     });
-  });
-
-  it('rejects invalid concurrency limits', () => {
-    expect(() => createJobQueue(0)).toThrow();
-    expect(() => createJobQueue(1.5)).toThrow();
   });
 });

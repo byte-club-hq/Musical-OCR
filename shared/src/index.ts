@@ -1,15 +1,8 @@
-// The HTTP contract between the client app and the backend.
-//
-// This package holds TYPES ONLY. Both workspaces import it with `import type`,
-// which TypeScript erases, so neither Metro nor Node ever loads it at runtime.
-// Do not add runtime values (constants, functions) here.
-//
-// See ARCHITECTURE.md for the endpoints that use these shapes.
+// HTTP contract shared by the backend and the app.
+// Types only: both sides use `import type`, so nothing here exists at runtime.
 
 export type PitchStep = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 
-// One recognized note in the small result summary. This is intentionally not a
-// full MusicXML model; the full score is downloaded as MusicXML separately.
 export type PitchItem = {
   readonly step: PitchStep;
   readonly octave: number;
@@ -18,11 +11,9 @@ export type PitchItem = {
 export type RecognitionStatus =
   'pending' | 'processing' | 'completed' | 'failed';
 
-// Codes a finished job can fail with. Shown to users through `message`.
 export type RecognitionFailureCode =
   'recognition_failed' | 'recognition_timeout' | 'recognition_no_result';
 
-// Codes returned in error responses (non-2xx) by the HTTP API.
 export type ApiErrorCode =
   | 'invalid_upload'
   | 'recognition_busy'
@@ -38,7 +29,6 @@ export type ErrorBody<Code extends string = string> = {
   readonly message: string;
 };
 
-// Body of every non-2xx JSON response.
 export type ApiErrorResponse = {
   readonly error: ErrorBody<ApiErrorCode>;
 };

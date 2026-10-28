@@ -8,9 +8,6 @@ import { apiBaseUrl } from '../../config/api';
 
 import type { SelectedImage } from './types';
 
-// The only module that talks HTTP to the backend. Request and response shapes
-// come from @musical-ocr/shared; see ARCHITECTURE.md for the endpoints.
-//
 // TODO: validate response bodies at runtime instead of these light checks.
 
 const genericUploadError = 'Could not upload this image. Please try again.';
@@ -70,20 +67,10 @@ export function musicXmlDownloadUrl(jobId: string): string {
 }
 
 // Backend error messages are written for users, so show them when present.
-function errorMessage(body: unknown, fallback: string): string {
-  if (
-    body &&
-    typeof body === 'object' &&
-    'error' in body &&
-    body.error &&
-    typeof body.error === 'object' &&
-    'message' in body.error &&
-    typeof body.error.message === 'string'
-  ) {
-    return body.error.message;
-  }
-
-  return fallback;
+function errorMessage(body: object | null, fallback: string): string {
+  return body && 'error' in body
+    ? (body as ApiErrorResponse).error.message
+    : fallback;
 }
 
 function createRecognitionUploadBody(image: SelectedImage): FormData {

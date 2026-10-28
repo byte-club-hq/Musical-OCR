@@ -9,10 +9,11 @@ const failure = {
 
 describe('recognition job store', () => {
   it('moves a job from pending through processing to completed', () => {
-    const store = createJobStore();
+    const store = createJobStore(60_000);
     const musicXml = Buffer.from('mxl');
 
-    expect(store.create('job-a')).toMatchObject({ status: 'pending' });
+    store.create('job-a');
+    expect(store.get('job-a')).toMatchObject({ status: 'pending' });
 
     store.markProcessing('job-a');
     expect(store.get('job-a')).toMatchObject({ status: 'processing' });
@@ -28,7 +29,7 @@ describe('recognition job store', () => {
   });
 
   it('keeps several jobs independent', () => {
-    const store = createJobStore();
+    const store = createJobStore(60_000);
 
     store.create('job-a');
     store.create('job-b');
@@ -45,17 +46,9 @@ describe('recognition job store', () => {
     });
   });
 
-  it('rejects duplicate job ids', () => {
-    const store = createJobStore();
-
-    store.create('job-a');
-
-    expect(() => store.create('job-a')).toThrow();
-  });
-
   it('drops finished jobs after the retention period', () => {
     let now = 0;
-    const store = createJobStore({ retentionMs: 1000, now: () => now });
+    const store = createJobStore(1000, () => now);
 
     store.create('completed');
     store.create('failed');

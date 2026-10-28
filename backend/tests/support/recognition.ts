@@ -5,7 +5,6 @@ import path from 'node:path';
 import { strToU8, zipSync } from 'fflate';
 
 import type { AudiverisRunResult } from '../../src/audiveris/types.ts';
-import { createJobQueue } from '../../src/recognition/job-queue.ts';
 import {
   createRecognitionService,
   type AudiverisRunner,
@@ -103,8 +102,7 @@ export function createTestRecognition(
 ) {
   return createRecognitionService({
     runAudiveris,
-    limits: { maxQueuedJobs },
-    queue: createJobQueue(concurrency),
+    limits: { concurrency, maxQueuedJobs, retentionMs: 60_000 },
     createWorkspace: () => createJobWorkspace({ tempRoot }),
   });
 }

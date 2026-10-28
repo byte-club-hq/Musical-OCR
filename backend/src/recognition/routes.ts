@@ -1,4 +1,3 @@
-import type { RecognitionResult } from '@musical-ocr/shared';
 import { Router } from 'express';
 
 import { sendError } from '../http/errors.ts';
@@ -9,8 +8,6 @@ import type { RecognitionService } from './service.ts';
 const MXL_CONTENT_TYPE = 'application/vnd.recordare.musicxml';
 const MXL_DOWNLOAD_NAME = 'sheet-music.mxl';
 
-// Mounted at /api/recognitions. Handlers stay thin: they translate HTTP to
-// service calls and service results to the shared response shapes.
 export function createRecognitionRouter(
   recognition: RecognitionService,
 ): Router {
@@ -19,9 +16,7 @@ export function createRecognitionRouter(
   router.post('/', createRecognitionUploadHandler(recognition.submit));
 
   router.get('/:id', (request, response) => {
-    const job: RecognitionResult | undefined = recognition.getJob(
-      request.params.id,
-    );
+    const job = recognition.getJob(request.params.id);
 
     if (!job) {
       sendError(response, 'recognition_not_found');

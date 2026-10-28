@@ -1,39 +1,25 @@
-// Each Audiveris run starts its own JVM inside a Docker container and can use
-// more than 1 GB of memory, so only a few runs may happen at once. Extra jobs
-// wait in FIFO order and keep their pending status until a slot frees up.
-export const DEFAULT_CONCURRENCY = 2;
-
 type Task = () => Promise<void>;
 
 export type JobQueue = {
   readonly enqueue: (task: Task) => void;
-  readonly running: () => number;
   readonly waiting: () => number;
 };
 
-export function createJobQueue(concurrency = DEFAULT_CONCURRENCY): JobQueue {
-  if (!Number.isSafeInteger(concurrency) || concurrency < 1) {
-    throw new Error('Job queue concurrency must be a positive integer');
-  }
-
+// Runs at most `concurrency` tasks at once, the rest wait in FIFO order.
+// Each Audiveris run is a JVM in Docker using 1-2 GB, hence the limit.
+export function createJobQueue(concurrency: number): JobQueue {
   const waitingTasks: Task[] = [];
-  let runningCount = 0;
+  let running = 0;
 
   const startNext = () => {
-    while (runningCount < concurrency) {
-      const task = waitingTasks.shift();
-
-      if (!task) {
-        return;
-      }
-
-      runningCount += 1;
-      // Tasks own their error handling; a rejected task must still free its
-      // slot so one broken job cannot stall the queue.
+    while (running < concurrency && waitingTasks.length > 0) {
+      const task = waitingTasks.shift() as Task;
+      running += 1;
+      // A failing task must still free its slot.
       void task()
         .catch(() => undefined)
         .finally(() => {
-          runningCount -= 1;
+          running -= 1;
           startNext();
         });
     }
@@ -44,7 +30,6 @@ export function createJobQueue(concurrency = DEFAULT_CONCURRENCY): JobQueue {
       waitingTasks.push(task);
       startNext();
     },
-    running: () => runningCount,
     waiting: () => waitingTasks.length,
   };
 }

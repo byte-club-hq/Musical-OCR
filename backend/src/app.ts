@@ -11,15 +11,13 @@ import {
 } from './recognition/service.ts';
 
 type CreateAppOptions = {
-  // Defaults to the built-in defaults, not process.env; index.ts passes the
-  // real environment.
   readonly config?: AppConfig;
   readonly logger?: Logger;
-  // Tests pass a service with a fake Audiveris runner.
   readonly recognition?: RecognitionService;
 };
 
 export function createApp(options: CreateAppOptions = {}): Express {
+  // Defaults to built-in settings, not process.env; index.ts passes those.
   const config = options.config ?? loadConfig({});
   const logger = options.logger ?? silentLogger;
   const recognition =
@@ -40,7 +38,6 @@ export function createApp(options: CreateAppOptions = {}): Express {
 
   app.use('/api/recognitions', createRecognitionRouter(recognition));
 
-  // Keep these last: JSON 404 for unknown routes, then the safe error handler.
   app.use(notFoundHandler);
   app.use(createErrorHandler(logger));
 

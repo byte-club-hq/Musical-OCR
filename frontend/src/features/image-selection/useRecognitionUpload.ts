@@ -4,8 +4,7 @@ import { fetchRecognitionStatus, uploadRecognitionImage } from './api';
 import type { SelectedImage, UploadState } from './types';
 
 const POLL_DELAY_MS = 1500;
-// Generous on purpose: a job may wait in the backend queue before Audiveris
-// (itself capped at a few minutes) even starts.
+// Generous because a job can sit in the backend queue before Audiveris starts.
 const POLL_TIMEOUT_MS = 10 * 60 * 1000;
 const timeoutMessage = 'Recognition is taking too long. Please try again.';
 
@@ -14,9 +13,8 @@ type Options = {
   readonly pollTimeoutMs?: number;
 };
 
-// Owns one scan's lifecycle: upload -> poll status -> completed/failed.
-// Screens render `state` and call the returned actions; they never fetch or
-// poll themselves. Only the most recent upload may update the state.
+// Upload -> poll status -> completed/failed. Only the latest upload may
+// update the state, so a reset or new image cancels an in-flight job.
 export function useRecognitionUpload({
   pollDelayMs = POLL_DELAY_MS,
   pollTimeoutMs = POLL_TIMEOUT_MS,
