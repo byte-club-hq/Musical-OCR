@@ -1,3 +1,5 @@
+import type { PitchItem } from '@musical-ocr/shared';
+
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export type SelectedImage = {
@@ -15,22 +17,16 @@ export type PickImageResult =
   | { readonly status: 'cancelled' }
   | { readonly status: 'invalid'; readonly message: string };
 
+// Everything the screen shows about one scan, from upload to result.
+// Owned by useRecognitionUpload; components only read it.
 export type UploadState =
   | { readonly status: 'idle' }
   | { readonly status: 'uploading' }
   | { readonly status: 'accepted'; readonly jobId: string }
   | { readonly status: 'processing'; readonly jobId: string }
-  | { readonly status: 'completed'; readonly jobId: string }
-  | { readonly status: 'failed'; readonly message: string };
-
-export type RecognitionJobStatus =
-  | { readonly status: 'pending'; readonly jobId: string }
-  | { readonly status: 'processing'; readonly jobId: string }
-  | { readonly status: 'completed'; readonly jobId: string }
   | {
-      readonly status: 'failed';
+      readonly status: 'completed';
       readonly jobId: string;
-      readonly error?: {
-        readonly message?: string;
-      };
-    };
+      readonly pitches: readonly PitchItem[];
+    }
+  | { readonly status: 'failed'; readonly message: string };

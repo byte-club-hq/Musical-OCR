@@ -161,7 +161,12 @@ describe('App', () => {
         ok: true,
       } as Response)
       .mockResolvedValueOnce({
-        json: async () => ({ jobId: 'job-123', status: 'completed' }),
+        json: async () => ({
+          jobId: 'job-123',
+          musicXmlReady: true,
+          pitches: [],
+          status: 'completed',
+        }),
         ok: true,
       } as Response);
 
@@ -185,7 +190,12 @@ describe('App', () => {
         ok: true,
       } as Response)
       .mockResolvedValueOnce({
-        json: async () => ({ jobId: 'job-123', status: 'completed' }),
+        json: async () => ({
+          jobId: 'job-123',
+          musicXmlReady: true,
+          pitches: [],
+          status: 'completed',
+        }),
         ok: true,
       } as Response);
 

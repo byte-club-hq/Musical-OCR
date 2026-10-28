@@ -1,94 +1,27 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ActionButton } from './components/ActionButton';
 import { ImagePreview } from './components/ImagePreview';
 import { ImageSummary } from './components/ImageSummary';
 import { UploadStatus } from './components/UploadStatus';
-import {
-  fetchRecognitionStatus,
-  musicXmlDownloadUrl,
-  uploadRecognitionImage,
-} from './api';
+import { musicXmlDownloadUrl } from './api';
 import { pickSheetMusicImage } from './picker';
-import type { SelectedImage, UploadState } from './types';
-
-const POLL_DELAY_MS = 1500;
+import type { SelectedImage } from './types';
+import { useRecognitionUpload } from './useRecognitionUpload';
 
 export function ImageSelectionScreen() {
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
     null,
   );
-  const [uploadState, setUploadState] = useState<UploadState>({
-    status: 'idle',
-  });
-  const [pollJobId, setPollJobId] = useState<string | null>(null);
-  const latestJobId = useRef<string | null>(null);
+  const {
+    reset,
+    showError,
+    state: uploadState,
+    submit,
+  } = useRecognitionUpload();
 
   const isUploading = uploadState.status === 'uploading';
-
-  useEffect(() => {
-    if (!pollJobId) {
-      return undefined;
-    }
-
-    let isCurrent = true;
-    let pollTimeout: ReturnType<typeof setTimeout> | undefined;
-
-    const poll = async () => {
-      try {
-        const job = await fetchRecognitionStatus(pollJobId);
-
-        if (!isCurrent || latestJobId.current !== pollJobId) {
-          return;
-        }
-
-        if (job.status === 'completed') {
-          setUploadState({ jobId: job.jobId, status: 'completed' });
-          setPollJobId(null);
-          return;
-        }
-
-        if (job.status === 'failed') {
-          setUploadState({
-            message: job.error?.message ?? 'Could not process this image.',
-            status: 'failed',
-          });
-          setPollJobId(null);
-          return;
-        }
-
-        setUploadState({
-          jobId: job.jobId,
-          status: job.status === 'processing' ? 'processing' : 'accepted',
-        });
-        pollTimeout = setTimeout(poll, POLL_DELAY_MS);
-      } catch (error) {
-        if (!isCurrent || latestJobId.current !== pollJobId) {
-          return;
-        }
-
-        setUploadState({
-          message:
-            error instanceof Error
-              ? error.message
-              : 'Could not check recognition status.',
-          status: 'failed',
-        });
-        setPollJobId(null);
-      }
-    };
-
-    void poll();
-
-    return () => {
-      isCurrent = false;
-
-      if (pollTimeout) {
-        clearTimeout(pollTimeout);
-      }
-    };
-  }, [pollJobId]);
 
   const chooseImage = async () => {
     const result = await pickSheetMusicImage();
@@ -98,23 +31,17 @@ export function ImageSelectionScreen() {
     }
 
     if (result.status === 'invalid') {
-      latestJobId.current = null;
-      setPollJobId(null);
-      setUploadState({ message: result.message, status: 'failed' });
+      showError(result.message);
       return;
     }
 
     setSelectedImage(result.image);
-    latestJobId.current = null;
-    setPollJobId(null);
-    setUploadState({ status: 'idle' });
+    reset();
   };
 
   const removeImage = () => {
     setSelectedImage(null);
-    latestJobId.current = null;
-    setPollJobId(null);
-    setUploadState({ status: 'idle' });
+    reset();
   };
 
   const scanImage = async () => {
@@ -122,24 +49,7 @@ export function ImageSelectionScreen() {
       return;
     }
 
-    setUploadState({ status: 'uploading' });
-
-    try {
-      const result = await uploadRecognitionImage(selectedImage);
-      latestJobId.current = result.jobId;
-      setUploadState({ jobId: result.jobId, status: 'accepted' });
-      setPollJobId(result.jobId);
-    } catch (error) {
-      latestJobId.current = null;
-      setPollJobId(null);
-      setUploadState({
-        message:
-          error instanceof Error
-            ? error.message
-            : 'Could not upload this image. Please try again.',
-        status: 'failed',
-      });
-    }
+    await submit(selectedImage);
   };
 
   return (

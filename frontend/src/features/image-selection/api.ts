@@ -1,31 +1,31 @@
+import type {
+  ApiErrorResponse,
+  RecognitionAccepted,
+  RecognitionResult,
+} from '@musical-ocr/shared';
+
 import { apiBaseUrl } from '../../config/api';
 
-import type { RecognitionJobStatus, SelectedImage } from './types';
+import type { SelectedImage } from './types';
+
+// The only module that talks HTTP to the backend. Request and response shapes
+// come from @musical-ocr/shared; see ARCHITECTURE.md for the endpoints.
+//
+// TODO: validate response bodies at runtime instead of these light checks.
 
 const genericUploadError = 'Could not upload this image. Please try again.';
 const genericStatusError = 'Could not check recognition status.';
 
-type RecognitionAcceptedResponse = {
-  readonly jobId: string;
-  readonly status: 'pending';
-};
-
-type RecognitionErrorResponse = {
-  readonly error?: {
-    readonly message?: string;
-  };
-};
-
 export async function uploadRecognitionImage(
   image: SelectedImage,
-): Promise<RecognitionAcceptedResponse> {
+): Promise<RecognitionAccepted> {
   const response = await fetch(`${apiBaseUrl}/api/recognitions`, {
     body: createRecognitionUploadBody(image),
     method: 'POST',
   });
 
   const body = (await response.json().catch(() => null)) as
-    RecognitionAcceptedResponse | RecognitionErrorResponse | null;
+    RecognitionAccepted | ApiErrorResponse | null;
 
   if (
     response.ok &&
@@ -37,20 +37,17 @@ export async function uploadRecognitionImage(
     return body;
   }
 
-  const safeMessage =
-    body && 'error' in body && typeof body.error?.message === 'string'
-      ? body.error.message
-      : genericUploadError;
-
-  throw new Error(safeMessage);
+  throw new Error(errorMessage(body, genericUploadError));
 }
 
 export async function fetchRecognitionStatus(
   jobId: string,
-): Promise<RecognitionJobStatus> {
-  const response = await fetch(`${apiBaseUrl}/api/recognitions/${jobId}`);
+): Promise<RecognitionResult> {
+  const response = await fetch(
+    `${apiBaseUrl}/api/recognitions/${encodeURIComponent(jobId)}`,
+  );
   const body = (await response.json().catch(() => null)) as
-    RecognitionJobStatus | RecognitionErrorResponse | null;
+    RecognitionResult | ApiErrorResponse | null;
 
   if (
     response.ok &&
@@ -65,16 +62,28 @@ export async function fetchRecognitionStatus(
     return body;
   }
 
-  const safeMessage =
-    body && 'error' in body && typeof body.error?.message === 'string'
-      ? body.error.message
-      : genericStatusError;
-
-  throw new Error(safeMessage);
+  throw new Error(errorMessage(body, genericStatusError));
 }
 
 export function musicXmlDownloadUrl(jobId: string): string {
   return `${apiBaseUrl}/api/recognitions/${encodeURIComponent(jobId)}/musicxml`;
+}
+
+// Backend error messages are written for users, so show them when present.
+function errorMessage(body: unknown, fallback: string): string {
+  if (
+    body &&
+    typeof body === 'object' &&
+    'error' in body &&
+    body.error &&
+    typeof body.error === 'object' &&
+    'message' in body.error &&
+    typeof body.error.message === 'string'
+  ) {
+    return body.error.message;
+  }
+
+  return fallback;
 }
 
 function createRecognitionUploadBody(image: SelectedImage): FormData {
