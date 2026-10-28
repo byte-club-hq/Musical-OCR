@@ -80,6 +80,7 @@ Read [ARCHITECTURE.md](ARCHITECTURE.md). It explains where each kind of code liv
 - Add or update tests for every production-code behavior change.
 - Put reusable test-only setup in `tests/setup.ts` and test fixtures in `tests/fixtures/` only when they are actually needed.
 - Mirror the `src/` directory structure inside `tests/` once multiple modules would otherwise have ambiguous test names; do not create empty hierarchy in advance.
+- Backend tests never run Docker: build the app with `createApp({ recognition })` and a fake Audiveris runner from `backend/tests/support/recognition.ts`.
 
 ## Commit Messages
 

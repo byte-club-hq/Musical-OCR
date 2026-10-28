@@ -139,29 +139,6 @@ These apply to every change:
 - **Never trust** file extensions or client MIME types; `uploads/image-upload.ts` checks the actual bytes.
 - **Never keep** uploaded images after a job finishes; workspaces are deleted on every path.
 
-## Recipes
-
-### Add a new API error
-
-1. Add the code to `ApiErrorCode` in `shared/src/index.ts`.
-2. Add its status and message to `apiErrors` in `backend/src/http/errors.ts` (TypeScript requires it).
-3. Call `sendError(response, 'your_code')`.
-
-### Add a new endpoint
-
-1. Add request/response types to `shared/src/index.ts`.
-2. Add the route to the matching router (or a new `<area>/routes.ts` mounted in `app.ts`).
-3. Put logic in a service, not the route handler. Pass dependencies in as arguments so tests can replace them.
-4. Add a client function to the frontend feature's `api.ts`.
-
-### Add a configuration value
-
-Add it to `AppConfig` and `loadConfig` in `backend/src/config.ts`, to `backend/.env.example`, to the table above, and to `tests/config.test.ts`.
-
-### Test without Docker
-
-`createApp({ recognition })` accepts any `RecognitionService`. `backend/tests/support/recognition.ts` provides services backed by fake Audiveris runners: succeeding, failing with a given reason, or paused until the test releases them.
-
 ## Deliberate MVP Limits
 
 - One backend process, in-memory state, no auth, no rate limiting beyond the queue limit.
