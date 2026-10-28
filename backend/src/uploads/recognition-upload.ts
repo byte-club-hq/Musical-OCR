@@ -1,12 +1,17 @@
+import type { RecognitionAccepted } from '@musical-ocr/shared';
 import type { RequestHandler } from 'express';
 import multer from 'multer';
 
-import type { RecognitionService } from '../recognition/service.ts';
+import { sendError } from '../http/errors.ts';
+import {
+  RecognitionBusyError,
+  type RecognitionService,
+} from '../recognition/service.ts';
 import { MAX_IMAGE_BYTES, validateUploadedImage } from './image-upload.ts';
 
 const upload = multer({
-  // Keep the image in memory for this validation-only endpoint.
-  // We copy accepted bytes into a per-job workspace.
+  // Keep the image in memory; the recognition service copies accepted bytes
+  // into a per-job workspace.
   storage: multer.memoryStorage(),
   limits: {
     fields: 0,
@@ -14,22 +19,6 @@ const upload = multer({
     files: 1,
   },
 }).single('image');
-
-// Use one generic public error so rejected uploads never leak filenames, local
-// paths, parser details, stack traces, or image bytes.
-const invalidUploadBody = {
-  error: {
-    code: 'invalid_upload',
-    message: 'Upload must be one PNG or JPEG image up to 10 MB.',
-  },
-} as const;
-
-const unavailableBody = {
-  error: {
-    code: 'recognition_unavailable',
-    message: 'Could not start recognition for this image.',
-  },
-} as const;
 
 export function createRecognitionUploadHandler(
   submit: RecognitionService['submit'],
@@ -39,8 +28,10 @@ export function createRecognitionUploadHandler(
     // request.file. The field name must match the frontend contract: image.
     upload(request, response, (error: unknown) => {
       void (async () => {
+        // Use one generic public error so rejected uploads never leak
+        // filenames, local paths, parser details, stack traces, or image bytes.
         if (error) {
-          response.status(400).json(invalidUploadBody);
+          sendError(response, 'invalid_upload');
           return;
         }
 
@@ -51,7 +42,7 @@ export function createRecognitionUploadHandler(
         // Multer only proves that a file field arrived. This second check proves
         // the bytes decode as a supported image within the MVP limits.
         if (!image || !request.file) {
-          response.status(400).json(invalidUploadBody);
+          sendError(response, 'invalid_upload');
           return;
         }
 
@@ -59,13 +50,19 @@ export function createRecognitionUploadHandler(
           imageBuffer: request.file.buffer,
           mediaType: image.mediaType,
         });
-
-        response.status(202).json({
+        const body: RecognitionAccepted = {
           jobId: job.jobId,
           status: job.status,
-        });
-      })().catch(() => {
-        response.status(500).json(unavailableBody);
+        };
+
+        response.status(202).json(body);
+      })().catch((submitError: unknown) => {
+        sendError(
+          response,
+          submitError instanceof RecognitionBusyError
+            ? 'recognition_busy'
+            : 'recognition_unavailable',
+        );
       });
     });
   };

@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import { createJobStore } from '../src/recognition/job-store.ts';
 
-const failure = { code: 'recognition_failed', message: 'Could not process.' };
+const failure = {
+  code: 'recognition_failed',
+  message: 'Could not process.',
+} as const;
 
 describe('recognition job store', () => {
   it('moves a job from pending through processing to completed', () => {

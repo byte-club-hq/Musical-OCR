@@ -2,6 +2,8 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { strToU8, zipSync } from 'fflate';
+
 import type { AudiverisRunResult } from '../../src/audiveris/types.ts';
 import { createJobQueue } from '../../src/recognition/job-queue.ts';
 import {
@@ -11,7 +13,18 @@ import {
 import { createJobWorkspace } from '../../src/workspaces/job-workspace.ts';
 import type { JobWorkspace } from '../../src/workspaces/types.ts';
 
-export const fakeMusicXml = Buffer.from('fake compressed MusicXML bytes');
+export const fakeScoreXml =
+  '<?xml version="1.0"?><score-partwise version="4.0"/>';
+
+// A minimal but valid .mxl archive, shaped like Audiveris output.
+export const fakeMusicXml = Buffer.from(
+  zipSync({
+    'META-INF/container.xml': strToU8(
+      '<container><rootfiles><rootfile full-path="source.xml"/></rootfiles></container>',
+    ),
+    'source.xml': strToU8(fakeScoreXml),
+  }),
+);
 
 // Stands in for Docker: writes the canonical result file like the real adapter.
 export const succeedingAudiveris: AudiverisRunner = async (workspace) => {
@@ -86,9 +99,11 @@ export function createTestRecognition(
   tempRoot: string,
   runAudiveris: AudiverisRunner,
   concurrency = 2,
+  maxQueuedJobs = 20,
 ) {
   return createRecognitionService({
     runAudiveris,
+    limits: { maxQueuedJobs },
     queue: createJobQueue(concurrency),
     createWorkspace: () => createJobWorkspace({ tempRoot }),
   });

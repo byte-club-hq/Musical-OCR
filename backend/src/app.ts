@@ -1,90 +1,48 @@
-import express, { type Express, type Response } from 'express';
+import express, { type Express } from 'express';
 
-import { allowAllCors } from './cors.ts';
+import { loadConfig, type AppConfig } from './config.ts';
+import { createCors } from './cors.ts';
+import { createErrorHandler, notFoundHandler } from './http/errors.ts';
+import { silentLogger, type Logger } from './logger.ts';
+import { createRecognitionRouter } from './recognition/routes.ts';
 import {
   createRecognitionService,
   type RecognitionService,
 } from './recognition/service.ts';
-import { createRecognitionUploadHandler } from './uploads/recognition-upload.ts';
 
 type CreateAppOptions = {
+  // Defaults to the built-in defaults, not process.env; index.ts passes the
+  // real environment.
+  readonly config?: AppConfig;
+  readonly logger?: Logger;
+  // Tests pass a service with a fake Audiveris runner.
   readonly recognition?: RecognitionService;
 };
 
-// Audiveris exports compressed MusicXML (.mxl), which MuseScore opens directly.
-const MXL_CONTENT_TYPE = 'application/vnd.recordare.musicxml';
-const MXL_DOWNLOAD_NAME = 'sheet-music.mxl';
-
 export function createApp(options: CreateAppOptions = {}): Express {
+  const config = options.config ?? loadConfig({});
+  const logger = options.logger ?? silentLogger;
+  const recognition =
+    options.recognition ??
+    createRecognitionService({
+      limits: config.recognition,
+      audiveris: config.audiveris,
+      logger,
+    });
   const app = express();
-  const recognition = options.recognition ?? createRecognitionService();
 
-  app.use(allowAllCors);
+  app.disable('x-powered-by');
+  app.use(createCors(config.corsOrigin));
 
   app.get('/api/health', (_request, response) => {
     response.status(200).json({ status: 'ok' });
   });
 
-  app.post(
-    '/api/recognitions',
-    createRecognitionUploadHandler(recognition.submit),
-  );
+  app.use('/api/recognitions', createRecognitionRouter(recognition));
 
-  app.get('/api/recognitions/:id', (request, response) => {
-    const job = recognition.getJob(request.params.id);
-
-    if (!job) {
-      sendNotFound(response);
-      return;
-    }
-
-    response.status(200).json(job);
-  });
-
-  app.get('/api/recognitions/:id/musicxml', (request, response) => {
-    const job = recognition.getJob(request.params.id);
-    const musicXml = recognition.getMusicXml(request.params.id);
-
-    if (!job) {
-      sendNotFound(response);
-      return;
-    }
-
-    if (job.status === 'failed') {
-      response.status(409).json({
-        error: {
-          code: 'musicxml_unavailable',
-          message: 'This recognition failed, so no MusicXML is available.',
-        },
-      });
-      return;
-    }
-
-    if (job.status !== 'completed' || !musicXml) {
-      response.status(409).json({
-        error: {
-          code: 'musicxml_not_ready',
-          message: 'MusicXML is not ready yet. Try again shortly.',
-        },
-      });
-      return;
-    }
-
-    response
-      .status(200)
-      .type(MXL_CONTENT_TYPE)
-      .attachment(MXL_DOWNLOAD_NAME)
-      .send(musicXml);
-  });
+  // Keep these last: JSON 404 for unknown routes, then the safe error handler.
+  app.use(notFoundHandler);
+  app.use(createErrorHandler(logger));
 
   return app;
-}
-
-function sendNotFound(response: Response): void {
-  response.status(404).json({
-    error: {
-      code: 'recognition_not_found',
-      message: 'Recognition job was not found.',
-    },
-  });
 }

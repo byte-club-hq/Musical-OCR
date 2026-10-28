@@ -3,15 +3,24 @@ import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { AudiverisRunner } from '../src/recognition/service.ts';
+import { summarizePitches } from '../src/musicxml/pitch-summary.ts';
+import {
+  RecognitionBusyError,
+  type AudiverisRunner,
+} from '../src/recognition/service.ts';
 import {
   controllableAudiveris,
   createTempRoot,
   createTestRecognition,
   failingAudiveris,
   fakeMusicXml,
+  fakeScoreXml,
   succeedingAudiveris,
 } from './support/recognition.ts';
+
+vi.mock('../src/musicxml/pitch-summary.ts', () => ({
+  summarizePitches: vi.fn(() => []),
+}));
 
 const pngFixturePath = path.join(
   import.meta.dirname,
@@ -172,5 +181,81 @@ describe('recognition service', () => {
       expect(recognition.getJob(second.jobId)?.status).toBe('completed');
     });
     expect(recognition.getJob(first.jobId)?.status).toBe('completed');
+  });
+
+  it('stores the pitch summary built from the MusicXML score', async () => {
+    vi.mocked(summarizePitches).mockReturnValueOnce([
+      { step: 'C', octave: 4 },
+      { step: 'D', octave: 4 },
+    ]);
+    const recognition = createTestRecognition(
+      tempRoot.tempRoot,
+      succeedingAudiveris,
+    );
+
+    const { jobId } = await recognition.submit({
+      imageBuffer,
+      mediaType: 'image/png',
+    });
+
+    await vi.waitFor(() => {
+      expect(recognition.getJob(jobId)).toMatchObject({
+        status: 'completed',
+        pitches: [
+          { step: 'C', octave: 4 },
+          { step: 'D', octave: 4 },
+        ],
+      });
+    });
+    expect(summarizePitches).toHaveBeenCalledWith(fakeScoreXml);
+  });
+
+  it('still completes the job when the pitch summary fails', async () => {
+    vi.mocked(summarizePitches).mockImplementationOnce(() => {
+      throw new Error('unsupported notation');
+    });
+    const recognition = createTestRecognition(
+      tempRoot.tempRoot,
+      succeedingAudiveris,
+    );
+
+    const { jobId } = await recognition.submit({
+      imageBuffer,
+      mediaType: 'image/png',
+    });
+
+    await vi.waitFor(() => {
+      expect(recognition.getJob(jobId)).toMatchObject({
+        status: 'completed',
+        pitches: [],
+      });
+    });
+    expect(recognition.getMusicXml(jobId)).toEqual(fakeMusicXml);
+  });
+
+  it('refuses new jobs when the waiting queue is full', async () => {
+    const audiveris = controllableAudiveris();
+    const recognition = createTestRecognition(
+      tempRoot.tempRoot,
+      audiveris.runner,
+      1,
+      1,
+    );
+    const submission = { imageBuffer, mediaType: 'image/png' } as const;
+
+    await recognition.submit(submission); // running
+    await recognition.submit(submission); // waiting
+
+    await expect(recognition.submit(submission)).rejects.toBeInstanceOf(
+      RecognitionBusyError,
+    );
+    expect(await readdir(tempRoot.tempRoot)).toHaveLength(2);
+
+    audiveris.releaseAll();
+    await vi.waitFor(() => {
+      expect(audiveris.started).toHaveLength(2);
+    });
+    audiveris.releaseAll();
+    await vi.waitFor(expectWorkspacesRemoved);
   });
 });

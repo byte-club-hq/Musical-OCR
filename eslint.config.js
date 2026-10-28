@@ -14,7 +14,11 @@ export default [
   ...tseslint.configs.recommended,
 
   {
-    files: ['frontend/**/*.{ts,tsx}', 'backend/**/*.{ts,tsx}'],
+    files: [
+      'frontend/**/*.{ts,tsx}',
+      'backend/**/*.{ts,tsx}',
+      'shared/**/*.ts',
+    ],
 
     languageOptions: {
       globals: {

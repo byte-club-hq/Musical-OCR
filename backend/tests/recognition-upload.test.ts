@@ -7,6 +7,7 @@ import type { Express } from 'express';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { createApp } from '../src/app.ts';
+import { RecognitionBusyError } from '../src/recognition/service.ts';
 import {
   createTempRoot,
   createTestRecognition,
@@ -136,5 +137,24 @@ describe('POST /api/recognitions', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual(invalidUploadBody);
+  });
+
+  it('answers 503 when the recognition queue is full', async () => {
+    const busyApp = createApp({
+      recognition: {
+        submit: async () => {
+          throw new RecognitionBusyError();
+        },
+        getJob: () => undefined,
+        getMusicXml: () => undefined,
+      },
+    });
+
+    const response = await request(busyApp)
+      .post('/api/recognitions')
+      .attach('image', pngFixturePath);
+
+    expect(response.status).toBe(503);
+    expect(response.body.error.code).toBe('recognition_busy');
   });
 });

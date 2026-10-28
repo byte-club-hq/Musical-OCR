@@ -1,43 +1,7 @@
-// This is the small public result the app can show. It is intentionally not a
-// full MusicXML model; the backend stores/downloads MusicXML separately.
-export type PitchItem = {
-  readonly step: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
-  readonly octave: number;
-};
+// The public shapes live in the shared contract package so the client app and
+// the backend cannot drift apart. Re-exported here for backend modules.
+import type { ErrorBody, RecognitionFailureCode } from '@musical-ocr/shared';
 
-export type RecognitionError = {
-  readonly code: string;
-  readonly message: string;
-};
+export type { PitchItem, RecognitionResult } from '@musical-ocr/shared';
 
-type RecognitionBase = {
-  readonly jobId: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-};
-
-type PendingRecognitionResult = RecognitionBase & {
-  readonly status: 'pending';
-};
-
-type ProcessingRecognitionResult = RecognitionBase & {
-  readonly status: 'processing';
-};
-
-type CompletedRecognitionResult = RecognitionBase & {
-  readonly status: 'completed';
-  readonly pitches: readonly PitchItem[];
-  readonly musicXmlReady: true;
-};
-
-type FailedRecognitionResult = RecognitionBase & {
-  readonly status: 'failed';
-  readonly error: RecognitionError;
-  readonly musicXmlReady: false;
-};
-
-export type RecognitionResult =
-  | PendingRecognitionResult
-  | ProcessingRecognitionResult
-  | CompletedRecognitionResult
-  | FailedRecognitionResult;
+export type RecognitionError = ErrorBody<RecognitionFailureCode>;

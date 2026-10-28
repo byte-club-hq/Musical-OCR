@@ -4,7 +4,8 @@
   "type": "module",
   "workspaces": [
     "frontend",
-    "backend"
+    "backend",
+    "shared"
   ],
   "overrides": {
     "react": "19.1.0",
@@ -17,7 +18,7 @@
     "build": "npm run build --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "lint": "eslint frontend backend --max-warnings 0",
+    "lint": "eslint frontend backend shared --max-warnings 0",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
