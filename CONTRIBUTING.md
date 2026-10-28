@@ -60,6 +60,10 @@ If you want to suggest an idea, open an issue and include:
 - the expected result
 - any examples or references that help explain it
 
+## Before You Code
+
+Read [ARCHITECTURE.md](ARCHITECTURE.md). It explains where each kind of code lives, the API contract in `shared/`, and the privacy rules every change must follow. CI runs typecheck, lint, format check, tests, and build on every pull request; run `npm run typecheck && npm run lint && npm run format:check && npm test` locally first.
+
 ## Style Guide
 
 - write readable code first

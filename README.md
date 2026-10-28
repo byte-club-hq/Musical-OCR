@@ -79,18 +79,23 @@ Responsibilities:
 
 ```text
 sheet-music-scanner/
-|-- frontend/
-|-- backend/
-|-- README.md
+|-- shared/      API contract types used by both apps
+|-- frontend/    Expo React Native client (web + mobile)
+|-- backend/     Express API and recognition pipeline
+|-- audiveris/   Audiveris Docker image and folder contract
+|-- ARCHITECTURE.md
 `-- CONTRIBUTING.md
 ```
 
+See [ARCHITECTURE.md](ARCHITECTURE.md) for how the pieces fit together, the HTTP API, configuration, and where new code belongs.
+
 ## Current State
 
-The repository contains runnable frontend and backend workspaces.
+The full upload -> Audiveris -> MusicXML download pipeline works end to end.
 
-- `frontend/` contains the Expo React Native and TypeScript client with React Native Web support
-- `backend/` contains the Express and TypeScript API, including its health endpoint
+- `frontend/` lets users pick an image, upload it, follow the job status, and download the MusicXML
+- `backend/` validates uploads, queues recognition jobs, runs Audiveris in Docker, and serves results
+- The pitch summary shown to users is not implemented yet
 
 ## Audiveris Local Docker Run
 
